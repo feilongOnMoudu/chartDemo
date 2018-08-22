@@ -18,6 +18,10 @@
 
 @interface SmoothChartView : UIView
 
+@property (nonatomic, assign) NSInteger gLineCount;
+
+@property (nonatomic, assign) NSInteger xLabelCount;
+
 /*
  * X 轴的刻度数字
  */
@@ -41,6 +45,8 @@
  *  pathY :纵坐标数据源
  *  X:X轴需要切割的份数
  */
+
+- (void)start;
 -(void)drawSmoothViewWithArrayX:(NSArray*)pathX andArrayY:(NSArray*)pathY andScaleX:(float)X;
 -(void)drawSmoothViewWithArrayX2:(NSArray*)pathX andArrayY:(NSArray*)pathY andScaleX:(float)X;
 

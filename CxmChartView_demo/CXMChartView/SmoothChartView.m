@@ -34,12 +34,17 @@
 }
 
 @property(nonatomic,strong) UIView *verticalView;
+
+@property (nonatomic,strong) UIView * chartBaseView;
 @end
 #define  VIEW_WIDTH  self.frame.size.width //底图的宽度
 #define  VIEW_HEIGHT self.frame.size.height//底图的高度
 
-#define  LABLE_WIDTH  280 //表的宽度
-#define  LABLE_HEIGHT 149 //表的高度
+#define  LABLE_WIDTH  (VIEW_WIDTH - 25) //表的宽度
+#define  LABLE_HEIGHT (self.frame.size.height - 50) //表的高度
+
+#define LineView_WIDTH LABLE_WIDTH
+#define LineView_HEIGHT LABLE_HEIGHT
 
 @implementation SmoothChartView
 
@@ -49,16 +54,22 @@
     if (self) {
         
         [self initData];
-        // X轴
-        [self makeChartXView];
-        // Y轴
-        [self makeChartYView];
-        // 承载曲线图的View
-        [self makeBottomlayer];
-         [self makeBottomlayer2];
+        self.chartBaseView = [[UIView alloc] initWithFrame:CGRectMake(25, 25, LineView_WIDTH, LineView_HEIGHT)];
+        [self addSubview:self.chartBaseView];
+        
         
     }
     return self;
+}
+
+- (void)start {
+    // X轴
+    [self makeChartXView];
+    // Y轴
+    [self makeChartYView];
+    // 承载曲线图的View
+    [self makeBottomlayer];
+    [self makeBottomlayer2];
 }
 -(void)initData{
     _pointArr = [[NSMutableArray alloc] initWithCapacity:0];
@@ -73,7 +84,7 @@
 }
 
 -(void)event_longPressMethod:(UILongPressGestureRecognizer *)longPress {
-    CGPoint touchPoint = [longPress locationInView:self];
+    CGPoint touchPoint = [longPress locationInView:self.chartBaseView];
     if (UIGestureRecognizerStateBegan == longPress.state || UIGestureRecognizerStateChanged == longPress.state) {
         for (NSUInteger p = 0; p < _allPointArray.count; p++) {
             NSArray *linePointsArray = _allPointArray[p];
@@ -93,99 +104,66 @@
                 
                 float distance = MIN(distanceToP1, distanceToP2);
                 
-                NSLog(@"touchPoint.x = %f,p1.x + gap  = %f,p1.x - gap = %f",touchPoint.x,p1.x + gap,p1.x - gap);
+                NSLog(@"touchPoint.x = %f,p1.x   = %f,gap = %f",touchPoint.x,p1.x, gap);
                 
-                NSLog(@"touchPoint.x = %f,p2.x + gap  = %f,p2.x - gap = %f",touchPoint.x,p2.x + gap,p2.x - gap);
-                
-//                if (i == 0) {
-//                    if (touchPoint.x < p1.x) {
-//                        if (!self.verticalView) {
-//                            self.verticalView = [[UIView alloc] initWithFrame:CGRectMake(-20, 0, 1, VIEW_HEIGHT)];
-//                            self.verticalView.clipsToBounds = YES;
-//                            [self addSubview:self.verticalView];
-//                            self.verticalView.backgroundColor = [UIColor redColor];
-//                        }
-//                        self.verticalView.frame = CGRectMake(p1.x, 0, 1, self.frame.size.height);
-//                        self.verticalView.hidden = NO;
-//                        [self.delegate tapRefresh];
-//                        NSLog(@"i == 0 touch.x = %f p1x = %f p2.x = %f index = %ld",touchPoint.x,p1.x, p2.x,i);
-//                        return;
-//                    }
-//                } else if (i == linePointsArray.count - 1) {
-//                    if (touchPoint.x > p1.x) {
-//                        if (!self.verticalView) {
-//                            self.verticalView = [[UIView alloc] initWithFrame:CGRectMake(-20, 0, 1, VIEW_HEIGHT)];
-//                            self.verticalView.clipsToBounds = YES;
-//                            [self addSubview:self.verticalView];
-//                            self.verticalView.backgroundColor = [UIColor redColor];
-//                        }
-//                        self.verticalView.frame = CGRectMake(p1.x, 0, 1, self.frame.size.height);
-//                        self.verticalView.hidden = NO;
-//                        [self.delegate tapRefresh];
-//                        NSLog(@"i == linePointsArray.count - 1 touch.x = %f p1x = %f p2.x = %f index = %ld",touchPoint.x,p1.x, p2.x,i);
-//                        return;
-//                    }
-//                } else {
-//
-//                }
-//                if (touchPoint.x <= p1.x) {
+                NSLog(@"touchPoint.x = %f,p2.x   = %f,gap = %f",touchPoint.x,p2.x, gap);
+                if (touchPoint.x <= 0) {
 //                    if (self.delegate && [self.delegate respondsToSelector:@selector(tapRefresh)]) {
 //                        if (!self.verticalView) {
-//                            self.verticalView = [[UIView alloc] initWithFrame:CGRectMake(-20, 0, 1, VIEW_HEIGHT)];
+//                            self.verticalView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 1, LineView_HEIGHT)];
 //                            self.verticalView.clipsToBounds = YES;
-//                            [self addSubview:self.verticalView];
+//                            [self.chartBaseView addSubview:self.verticalView];
 //                            self.verticalView.backgroundColor = [UIColor redColor];
 //                        }
-//                        self.verticalView.frame = CGRectMake(p1.x, 0, 1, self.frame.size.height);
+//                        self.verticalView.frame = CGRectMake(0, 0, 1, LineView_HEIGHT);
 //                        self.verticalView.hidden = NO;
 //                        [self.delegate tapRefresh];
 //                        NSLog(@"1 touch.x = %f p1x = %f p2.x = %f index = %ld",touchPoint.x,p1.x, p2.x,i);
 //                        return;
 //                    }
-//                } else if (touchPoint.x >= p1.x) {
-//                    if (self.delegate && [self.delegate respondsToSelector:@selector(tapRefresh)]) {
-//                        if (!self.verticalView) {
-//                            self.verticalView = [[UIView alloc] initWithFrame:CGRectMake(-20, 0, 1, VIEW_HEIGHT)];
-//                            self.verticalView.clipsToBounds = YES;
-//                            [self addSubview:self.verticalView];
-//                            self.verticalView.backgroundColor = [UIColor redColor];
-//                        }
-//                        self.verticalView.frame = CGRectMake(p1.x, 0, 1, self.frame.size.height);
-//                        self.verticalView.hidden = NO;
-//                        [self.delegate tapRefresh];
-//                        NSLog(@"1 touch.x = %f p1x = %f p2.x = %f index = %ld",touchPoint.x,p1.x, p2.x,i);
-//                        return;
-//                    }
-//                }else
-                if ((touchPoint.x - 25) < p1.x + gap && (touchPoint.x- 25) < p1.x - gap) {
-                    if (self.delegate && [self.delegate respondsToSelector:@selector(tapRefresh)]) {
-                        if (!self.verticalView) {
-                            self.verticalView = [[UIView alloc] initWithFrame:CGRectMake(-20, 0, 1, VIEW_HEIGHT)];
-                            self.verticalView.clipsToBounds = YES;
-                            [self addSubview:self.verticalView];
-                            self.verticalView.backgroundColor = [UIColor redColor];
-                        }
-                        self.verticalView.frame = CGRectMake(p1.x, 0, 1, self.frame.size.height);
-                        self.verticalView.hidden = NO;
-                        [self.delegate tapRefresh];
-                        NSLog(@"1 touch.x = %f p1x = %f p2.x = %f index = %ld",touchPoint.x,p1.x, p2.x,i);
-                        return;
-                    }
-                } else if ((touchPoint.x - 25) < p2.x + gap && (touchPoint.x - 25) < p2.x - gap) {
                     if (!self.verticalView) {
-                        self.verticalView = [[UIView alloc] initWithFrame:CGRectMake(-20, 0, 1, self.frame.size.height)];
+                        self.verticalView = [[UIView alloc] initWithFrame:CGRectMake(7, 0, 1, LineView_HEIGHT)];
                         self.verticalView.clipsToBounds = YES;
-                        [self addSubview:self.verticalView];
+                        [self.chartBaseView addSubview:self.verticalView];
                         self.verticalView.backgroundColor = [UIColor redColor];
                     }
-                    self.verticalView.frame = CGRectMake(p2.x, 0, 1, self.frame.size.height);
+                    self.verticalView.frame = CGRectMake(7, 0, 1, LineView_HEIGHT);
                     self.verticalView.hidden = NO;
                     [self.delegate tapRefresh];
-                    NSLog(@"2 touch.x = %f p1x = %f p2.x = %f index = %ld",touchPoint.x,p1.x, p2.x,i+1);
+                    NSLog(@"1 touch.x = %f p1x = %f p2.x = %f index = %ld",touchPoint.x,p1.x, p2.x,i);
                     return;
                 } else {
-                   
+                    if (touchPoint.x < p1.x + gap && touchPoint.x< p1.x - gap) {
+                        if (self.delegate && [self.delegate respondsToSelector:@selector(tapRefresh)]) {
+                            if (!self.verticalView) {
+                                self.verticalView = [[UIView alloc] initWithFrame:CGRectMake(-20, 0, 1, LineView_HEIGHT)];
+                                self.verticalView.clipsToBounds = YES;
+                                [self.chartBaseView addSubview:self.verticalView];
+                                self.verticalView.backgroundColor = [UIColor redColor];
+                            }
+                            self.verticalView.frame = CGRectMake(p1.x, 0, 1, LineView_HEIGHT);
+                            self.verticalView.hidden = NO;
+                            [self.delegate tapRefresh];
+                            NSLog(@"1 touch.x = %f p1x = %f p2.x = %f index = %ld",touchPoint.x,p1.x, p2.x,i);
+                            return;
+                        }
+                    } else if (touchPoint.x  < p2.x + gap && touchPoint.x < p2.x - gap) {
+                        if (!self.verticalView) {
+                            self.verticalView = [[UIView alloc] initWithFrame:CGRectMake(-20, 0, 1, LineView_HEIGHT)];
+                            self.verticalView.clipsToBounds = YES;
+                            [self.chartBaseView addSubview:self.verticalView];
+                            self.verticalView.backgroundColor = [UIColor redColor];
+                        }
+                        self.verticalView.frame = CGRectMake(p2.x, 0, 1, LineView_HEIGHT);
+                        self.verticalView.hidden = NO;
+                        [self.delegate tapRefresh];
+                        NSLog(@"2 touch.x = %f p1x = %f p2.x = %f index = %ld",touchPoint.x,p1.x, p2.x,i+1);
+                        return;
+                    } else {
+                        
+                    }
                 }
+                
             }
         }
     } else {
@@ -198,9 +176,9 @@
 
     //X轴
     layerX = [CAShapeLayer layer];
-    layerX.frame = CGRectMake(25,LABLE_HEIGHT + 25, LABLE_WIDTH, 1);
+    layerX.frame = CGRectMake(0,LineView_HEIGHT, LineView_WIDTH, 1);
     layerX.backgroundColor = [UIColor colorFromHexCode:@"d8d8d8"].CGColor;
-    [self.layer addSublayer:layerX];
+    [self.chartBaseView.layer addSublayer:layerX];
     
 }
 -(void)makeChartYView{
@@ -211,12 +189,12 @@
     layerY.backgroundColor = [[UIColor colorFromHexCode:@"d8d8d8"] CGColor];
     [self.layer addSublayer:layerY];
     
-    float height= 30;
+    float height= LineView_HEIGHT/self.gLineCount;
     // 纵坐标上的横线
-    for (int i=0; i<5; i++) {
+    for (int i=0; i<self.gLineCount; i++) {
         if (i!=5) {
             CAShapeLayer *layer5 = [CAShapeLayer layer];
-            layer5.frame = CGRectMake(0, i*height,LABLE_WIDTH, 0.5f);
+            layer5.frame = CGRectMake(0, i*height,LineView_WIDTH, 0.5f);
             layer5.backgroundColor = [[UIColor colorFromHexCode:@"d8d8d8"] CGColor];
             [layerY addSublayer:layer5];
         }
@@ -224,9 +202,9 @@
     
     // 右侧侧纵轴线
     CAShapeLayer *layerLeft = [CAShapeLayer layer];
-    layerLeft.frame = CGRectMake(VIEW_WIDTH-2,25, 0.5f, LABLE_HEIGHT);
+    layerLeft.frame = CGRectMake(LineView_WIDTH,0, 0.5f, LineView_HEIGHT);
     layerLeft.backgroundColor = [[UIColor colorFromHexCode:@"d8d8d8"] CGColor];
-    [self.layer addSublayer:layerLeft];
+    [self.chartBaseView.layer addSublayer:layerLeft];
 
 }
 
@@ -234,15 +212,15 @@
 
     _bottomLayer = [CAShapeLayer layer];
     _bottomLayer.backgroundColor = [UIColor clearColor].CGColor;
-    _bottomLayer.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
-    [self.layer addSublayer:_bottomLayer];
+    _bottomLayer.frame = CGRectMake(0, 0, LineView_WIDTH, LineView_HEIGHT);
+    [self.chartBaseView.layer addSublayer:_bottomLayer];
 }
 
 - (void)makeBottomlayer2 {
     _bottomLayer2 = [CAShapeLayer layer];
     _bottomLayer2.backgroundColor = [UIColor clearColor].CGColor;
-    _bottomLayer2.frame = CGRectMake(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
-    [self.layer addSublayer:_bottomLayer2];
+    _bottomLayer2.frame = CGRectMake(0, 0, LineView_WIDTH, LineView_HEIGHT);
+    [self.chartBaseView.layer addSublayer:_bottomLayer2];
 }
 
 -(void)setArrX:(NSArray *)arrX{
@@ -251,7 +229,6 @@
     [layerX removeFromSuperlayer];
     [self makeChartXView];
     
-    CGFloat width = (VIEW_WIDTH-30)/3;
     
     for (NSInteger i=0; i<arrX.count; i++) {
         
@@ -259,24 +236,16 @@
         [label removeFromSuperview];
     }
     //横坐标上的数字
-    for (int i=0; i<arrX.count; i++) {
+    for (int i=0; i<self.xLabelCount; i++) {
         
         UILabel *layer3 = [UILabel new];
-        layer3.frame = CGRectMake((VIEW_WIDTH - LABLE_WIDTH)+i*width+25, VIEW_HEIGHT - 20, width, 20);
+        layer3.frame = CGRectMake(25 + LineView_WIDTH / self.xLabelCount  * i, CGRectGetMaxY(self.chartBaseView.frame), LineView_WIDTH / self.xLabelCount, 20);
         layer3.text = [NSString stringWithFormat:@"%@",_arrX[i]];
         layer3.font = [UIFont systemFontOfSize:12];
-        layer3.textAlignment = NSTextAlignmentLeft;
+        layer3.textAlignment = ((i == 0) ? NSTextAlignmentLeft : NSTextAlignmentRight);
         layer3.tag = 5000+i;
         layer3.textColor = [UIColor colorFromHexCode:@"999999"];
         [self addSubview:layer3];
-
-        
-//        CATextLayer *layer3 = [CATextLayer layer];
-//        layer3.frame = CGRectMake((VIEW_WIDTH - LABLE_WIDTH)+i*width, 5, width, 20);
-//        layer3.string = [NSString stringWithFormat:@"%@",_arrX[i]];
-//        layer3.fontSize = 12;
-//        layer3.foregroundColor = [[UIColor colorFromHexCode:@"999999"] CGColor];
-//        [layerX addSublayer:layer3];
     }
 
 }
@@ -286,33 +255,25 @@
     [layerY removeFromSuperlayer];
     [self makeChartYView];
     
-    float height= 30;
+    float height= LineView_HEIGHT/self.gLineCount;
 
-    for (NSInteger i=0; i<6; i++) {
+    for (NSInteger i=0; i<self.gLineCount; i++) {
         
         UILabel *label = (UILabel*)[self viewWithTag:4000+i];
         [label removeFromSuperview];
     }
-    
+    CGFloat gapNum = [[_arrY lastObject] floatValue] - [[_arrY firstObject] floatValue];
     //纵坐标上的数字
-    for (int i=0; i<6; i++) {
+    for (int i=0; i<self.gLineCount+1; i++) {
         
         UILabel *layer6 = [UILabel new];
-        layer6.frame = CGRectMake(-5,LABLE_HEIGHT-(i*height)+15, 25, 20);
-        layer6.text = [NSString stringWithFormat:@"%@",_arrY[i]];
+        layer6.frame = CGRectMake(0,LABLE_HEIGHT-(i*height)+15, 25, 20);
+        layer6.text = [NSString stringWithFormat:@"%.0f",gapNum/self.gLineCount * i];
         layer6.font = [UIFont systemFontOfSize:12];
         layer6.textAlignment = NSTextAlignmentRight;
         layer6.tag = 4000+i;
         layer6.textColor = [UIColor colorFromHexCode:@"999999"];
         [self addSubview:layer6];
-
-//        CATextLayer *layer6 = [CATextLayer layer];
-//        layer6.frame = CGRectMake(-30,LABLE_HEIGHT-(i*height)-6, 25, 20);
-//        layer6.string = [NSString stringWithFormat:@"%@",_arrY[i]];
-//        layer6.fontSize = 12;
-//        layer6.alignmentMode = kCAAlignmentRight;
-//        layer6.foregroundColor = [[UIColor colorFromHexCode:@"999999"] CGColor];
-//        [layerY addSublayer:layer6];
     
     }
 }
@@ -337,13 +298,13 @@
     UIBezierPath *path = [UIBezierPath bezierPath];
 
     //X轴和Y轴的倍率
-    CGFloat BLX = (LABLE_WIDTH-15)/X;
-    CGFloat BLY = LABLE_HEIGHT/[[_arrY lastObject] floatValue];
+    CGFloat BLX = (LineView_WIDTH - 10)/(pathX.count - 1);
+     CGFloat gapNum = [[_arrY lastObject] floatValue] - [[_arrY firstObject] floatValue];
     NSMutableArray * ponits = [[NSMutableArray alloc] init];
     for (int i= 0; i< pathY.count; i++) {
         
-        CGFloat X = [pathX[i] floatValue]*BLX +(VIEW_WIDTH - LABLE_WIDTH) +10;
-        CGFloat Y = LABLE_HEIGHT - [pathY[i] floatValue]*BLY +(VIEW_HEIGHT - LABLE_HEIGHT)/2;//(VIEW_HEIGHT - LABLE_HEIGHT)/2是指图表在背景大图的的height
+        CGFloat X = i*BLX + 10;
+        CGFloat Y = (1 - ([pathY[i] floatValue]/gapNum)) * LineView_HEIGHT;
         
         //NSLog(@"space==%lf",VIEW_HEIGHT - LABLE_HEIGHT);
         point = CGPointMake(X, Y);
@@ -370,7 +331,7 @@
     animation.fromValue = @(0.0);
     animation.toValue = @(3.0);
     animation.autoreverses = NO;
-    animation.duration = 2;
+    animation.duration = 3;
     
     // 设置layer的animation
     [layer addAnimation:animation forKey:nil];
@@ -406,17 +367,18 @@
     UIBezierPath *path = [UIBezierPath bezierPath];
     
     //X轴和Y轴的倍率
-    CGFloat BLX = (LABLE_WIDTH-15)/X;
-    CGFloat BLY = LABLE_HEIGHT/[[_arrY lastObject] floatValue];
+    CGFloat BLX = (LineView_WIDTH - 10)/(pathX.count - 1);
+    CGFloat gapNum = [[_arrY lastObject] floatValue] - [[_arrY firstObject] floatValue];
     NSMutableArray * ponits = [[NSMutableArray alloc] init];
     for (int i= 0; i< pathY.count; i++) {
         
-        CGFloat X = [pathX[i] floatValue]*BLX +(VIEW_WIDTH - LABLE_WIDTH) +10;
-        CGFloat Y = LABLE_HEIGHT - [pathY[i] floatValue]*BLY +(VIEW_HEIGHT - LABLE_HEIGHT)/2;//(VIEW_HEIGHT - LABLE_HEIGHT)/2是指图表在背景大图的的height
+        CGFloat X = i*BLX + 10;
+        NSLog(@"%f",BLX);
+        CGFloat Y = (1 - ([pathY[i] floatValue]/gapNum)) * LineView_HEIGHT;
         
         //NSLog(@"space==%lf",VIEW_HEIGHT - LABLE_HEIGHT);
         point = CGPointMake(X, Y);
-        
+        NSLog(@"%f    %f",point.x,point.y);
         [_pointArr addObject:[NSValue valueWithCGPoint:point]];
         [ponits addObject:[NSValue valueWithCGPoint:point]];
         
@@ -437,7 +399,7 @@
     animation.fromValue = @(0.0);
     animation.toValue = @(3.0);
     animation.autoreverses = NO;
-    animation.duration = 2;
+    animation.duration = 3;
     
     // 设置layer的animation
     [layer addAnimation:animation forKey:nil];
@@ -497,7 +459,7 @@
     animation.fromValue = @(0.0);
     animation.toValue = @(3.0);
     animation.autoreverses = NO;
-    animation.duration = 2;
+    animation.duration = 3;
     
     // 设置layer的animation
     [anmitionLayer addAnimation:animation forKey:nil];
